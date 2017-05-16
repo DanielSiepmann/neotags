@@ -26,10 +26,10 @@ class NeotagsPlugin(object):
 
         try:
             with locket.lock_file(self.get_tags_file() + '.lock'):
-                self.log('Start updating tags for: ' + self.relative_filename)
+                self.log('Start updating tags')
                 self.strip_existing_tags()
                 self.generate_tags()
-                self.log('Tags updated for: ' + self.relative_filename)
+                self.log('Tags for file: "%s"' % self.relative_filename)
         except ValueError:
             self.log('No tags file found')
 
@@ -50,6 +50,8 @@ class NeotagsPlugin(object):
 
     def get_tags_file(self):
         start_dir = os.path.dirname(self.filename)
+        self.log('tst: ' + start_dir)
+        # TODO: Why does it find the file?
         for dirpath, __, filenames in os.walk(start_dir, topdown=False):
             if self.tags_filename in filenames:
                 return os.path.join(dirpath, self.tags_filename)
