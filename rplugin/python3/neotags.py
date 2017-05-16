@@ -1,7 +1,9 @@
 import neovim
 import os
+import sys
 import fileinput
 import subprocess
+import locket
 
 
 @neovim.plugin
@@ -15,70 +17,36 @@ class NeotagsPlugin(object):
         self.ctags_cmd = 'ctags'
         # Perhaps fetch debugging settings?
 
-    # Check whether a single command is enough as it's triggered twice.
-    @neovim.autocmd(
-        'BufWritePost,FileWritePost',
-        pattern='*',
-        eval='expand("<afile>:p")'
-    )
+    # Check whether 'FileWritePost' is necessary
+    @neovim.autocmd('BufWritePost', pattern='*', eval='expand("<afile>:p")')
     def update_tags_for_file(self, filename):
         self.filename = filename
         pwd = self.nvim.funcs.execute('pwd').strip()
         self.relative_filename = self.filename.replace(pwd, '').lstrip('\/')
-        self.log('Start updating tags for abs: ' + self.filename)
-        self.log('Start updating tags for rel: ' + self.relative_filename)
-
-        # TODO: Add locking
 
         try:
-            self.strip_existing_tags()
-            self.generate_tags()
+            with locket.lock_file(self.get_tags_file() + '.lock'):
+                self.log('Start updating tags for: ' + self.relative_filename)
+                self.strip_existing_tags()
+                self.generate_tags()
+                self.log('Tags updated for: ' + self.relative_filename)
         except ValueError:
             self.log('No tags file found')
 
     def strip_existing_tags(self):
-        tagsf = self.get_tags_file()
-        backup = '.bak'
-
-        file = fileinput.FileInput(files=tagsf, inplace=True, backup=backup)
-        try:
-            for line in file:
+        with fileinput.input(files=self.get_tags_file(), inplace=True, backup='.bak') as f:
+            for line in f:
                 if self.relative_filename not in line:
-                    self.log('Keep line: ' + line)
-                    print(line)
-                else:
-                    self.log('Remove line: ' + line)
-        finally:
-            file.close()
-            try:
-                os.unlink(tagsf + backup)
-            except FileNotFoundError:
-                pass
-        # with fileinput.input(files=tagsf, inplace=True, backup=backup) as f:
-        #     self.log('Lookup' + self.relative_filename)
-        #     for line in f:
-        #         self.log('Line: ' + line)
-        #         if self.relative_filename not in line:
-        #             self.log('Keep line')
-        #             print(line)
-        #         else:
-        #             self.log('Remove line')
+                    sys.stdout.write(line)
 
     def generate_tags(self):
-        finished = subprocess.run([
+        subprocess.run([
             self.ctags_cmd,
             '-f',
             self.get_tags_file(),
             '-a',
             "%s" % self.relative_filename
         ])
-
-        if finished.stderr:
-            self.log('Error:' + finished.stderr)
-        if finished.stdout:
-            self.log('Output:' + finished.stdout)
-        if finished.returncode:
-            self.log('Code:' + finished.returncode)
 
     def get_tags_file(self):
         start_dir = os.path.dirname(self.filename)
