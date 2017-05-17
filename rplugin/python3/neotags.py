@@ -1,6 +1,6 @@
 import neovim
-import os
 import sys
+import pathlib
 import fileinput
 import subprocess
 import locket
@@ -49,12 +49,16 @@ class NeotagsPlugin(object):
         ])
 
     def get_tags_file(self):
-        start_dir = os.path.dirname(self.filename)
-        self.log('tst: ' + start_dir)
-        # TODO: Why does it find the file?
-        for dirpath, __, filenames in os.walk(start_dir, topdown=False):
-            if self.tags_filename in filenames:
-                return os.path.join(dirpath, self.tags_filename)
+        path = pathlib.Path(self.filename)
+
+        self.log('Test: ' + str(path.with_name(self.tags_filename)))
+        if path.with_name(self.tags_filename).is_file():
+            return str(path.with_name(self.tags_filename))
+
+        for folder in path.parents:
+            self.log('Test: ' + str(folder.with_name(self.tags_filename)))
+            if folder.with_name(self.tags_filename).is_file():
+                return str(folder.with_name(self.tags_filename))
 
         raise ValueError('No tags file found in parent folders of given file')
 
