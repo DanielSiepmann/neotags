@@ -34,7 +34,8 @@ class NeotagsPlugin(object):
             self.log('No tags file found')
 
     def strip_existing_tags(self):
-        with fileinput.input(files=self.get_tags_file(), inplace=True, backup='.bak') as f:
+        tags_f = self.get_tags_file()
+        with fileinput.input(files=tags_f, inplace=True, backup='.bak') as f:
             for line in f:
                 if self.relative_filename not in line:
                     sys.stdout.write(line)
