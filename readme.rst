@@ -12,15 +12,20 @@ Requirements
 
 - Python3
 
-TODO
-====
+Options
+=======
 
-* Provide configuration through vim
+All options are set through::
 
-  * ctags binary to use
+    let g:neotags_option_name = value
 
-  * Tags file name to use
+The following options are available:
 
-  * Logging / Debugging
+- ``let g:neotags_tags_filename = "tags"``
+   Defines which file name the generated tags file has.
 
-* Handle possible issues with ctags execution
+- ``let g:neotags_ctags_cmd = "ctags"``
+   Defines the binary to use for generation.
+
+- ``let g:neotags_logging = 0``
+   Defines whether to log anything to vims messages.

@@ -11,36 +11,54 @@ class NeotagsPlugin(object):
 
     def __init__(self, nvim):
         self.nvim = nvim
-        # TODO: Make configurable
-        self.tags_filename = 'tags'
-        # TODO: Make configurable
-        self.ctags_cmd = 'ctags'
-        # Perhaps fetch debugging settings?
+        # Perhaps debugging settings?
+        self.options = {
+            'tags_filename': 'tags',
+            'ctags_cmd': 'ctags',
+            'logging': False,
+        }
 
     def update_settings(self):
+        for option, default in self.options.items():
+            try:
+                variable = 'neotags_%s' % option
+                self.options[option] = self.nvim.vars[variable]
+            except neovim.api.nvim.NvimError:
+                self.options[option] = default
+
+        variable = 'neotags_%s' % option
         try:
-            self.logging = bool(self.nvim.vars['neotags_logging'])
+            self.options[option] = bool(self.nvim.vars[variable])
         except neovim.api.nvim.NvimError:
-            self.logging = false
+            self.options[option] = False
 
     # Check whether 'FileWritePost' is necessary
     @neovim.autocmd('BufWritePost', pattern='*', eval='expand("<afile>:p")')
     def update_tags_for_file(self, filename):
         self.update_settings()
 
-        self.log('Triggered for "%s"' % filename)
+        self.debug('Triggered for "%s"' % filename)
 
         pwd = self.nvim.funcs.execute('pwd').strip()
         relative_filename = filename.replace(pwd, '').lstrip('\/')
-        tags_file = self.get_tags_file(filename)
 
         try:
-            self.log('Start updating tags for "%s"' % filename)
+            tags_file = self.get_tags_file(filename)
+        except:
+            self.error(
+                'Could not determine tags file to update for "%s"' % (
+                    filename
+                )
+            )
+            return
+
+        try:
+            self.debug('Start updating tags for "%s"' % filename)
             self.strip_existing_tags(tags_file, relative_filename)
             self.generate_tags(tags_file, relative_filename)
-            self.log('Tags updated for "%s"' % filename)
+            self.debug('Tags updated for "%s"' % filename)
         except:
-            self.log(
+            self.error(
                 'Failed to update tags for "%s", reason: %s' % (
                     filename, traceback.format_exc()
                 )
@@ -54,7 +72,7 @@ class NeotagsPlugin(object):
 
     def generate_tags(self, tags_file, filename):
         subprocess.run([
-            self.ctags_cmd,
+            self.options['ctags_cmd'],
             '-f',
             tags_file,
             '-a',
@@ -63,20 +81,26 @@ class NeotagsPlugin(object):
 
     def get_tags_file(self, filename):
         path = pathlib.Path(filename)
-        possible_file = path.with_name(self.tags_filename)
+        possible_file = path.with_name(self.options['tags_filename'])
 
-        self.log('Search tags file: "%s"' % possible_file)
+        self.debug('Search tags file: "%s"' % possible_file)
         if possible_file.is_file():
             return str(possible_file)
 
         for folder in path.parents:
-            possible_file = folder.with_name(self.tags_filename)
-            self.log('Search tags file: "%s"' % possible_file)
+            self.debug('folder %s' % folder)
+            self.debug('file name %s' % self.options['tags_filename'])
+            possible_file = folder.with_name(self.options['tags_filename'])
+            self.debug('Search tags file: "%s"' % possible_file)
             if possible_file.is_file():
                 return str(possible_file)
 
         raise ValueError('No tags file found in parent folders of given file')
 
-    def log(self, message):
-        if self.logging:
+    def debug(self, message):
+        if self.options['logging']:
             self.nvim.out_write('neotags > ' + message + "\n")
+
+    def error(self, message):
+        if self.options['logging']:
+            self.nvim.err_write('neotags > ' + message + "\n")
