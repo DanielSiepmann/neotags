@@ -88,8 +88,6 @@ class NeotagsPlugin(object):
             return str(possible_file)
 
         for folder in path.parents:
-            self.debug('folder %s' % folder)
-            self.debug('file name %s' % self.options['tags_filename'])
             possible_file = folder.with_name(self.options['tags_filename'])
             self.debug('Search tags file: "%s"' % possible_file)
             if possible_file.is_file():
