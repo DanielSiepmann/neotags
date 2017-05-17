@@ -1,9 +1,9 @@
 import neovim
-import sys
-import pathlib
 import fileinput
+import pathlib
 import subprocess
-import locket
+import sys
+import traceback
 
 
 @neovim.plugin
@@ -20,37 +20,41 @@ class NeotagsPlugin(object):
     # Check whether 'FileWritePost' is necessary
     @neovim.autocmd('BufWritePost', pattern='*', eval='expand("<afile>:p")')
     def update_tags_for_file(self, filename):
-        self.filename = filename
+        self.log('Triggered for "%s"' % filename)
+
         pwd = self.nvim.funcs.execute('pwd').strip()
-        self.relative_filename = self.filename.replace(pwd, '').lstrip('\/')
+        relative_filename = filename.replace(pwd, '').lstrip('\/')
+        tags_file = self.get_tags_file(filename)
 
         try:
-            with locket.lock_file(self.get_tags_file() + '.lock'):
-                self.log('Start updating tags')
-                self.strip_existing_tags()
-                self.generate_tags()
-                self.log('Tags for file: "%s"' % self.relative_filename)
-        except ValueError:
-            self.log('No tags file found')
+            self.log('Start updating tags for "%s"' % filename)
+            self.strip_existing_tags(tags_file, relative_filename)
+            self.generate_tags(tags_file, relative_filename)
+            self.log('Tags for file "%s"' % filename)
+        except:
+            self.log(
+                'Failed to update tags for "%s", reason: %s' % (
+                    filename, traceback.format_exc()
+                )
+            )
 
-    def strip_existing_tags(self):
-        tags_f = self.get_tags_file()
+    def strip_existing_tags(self, tags_f, filename):
         with fileinput.input(files=tags_f, inplace=True, backup='.bak') as f:
             for line in f:
-                if self.relative_filename not in line:
+                if filename not in line:
                     sys.stdout.write(line)
 
-    def generate_tags(self):
+    def generate_tags(self, tags_file, filename):
         subprocess.run([
             self.ctags_cmd,
             '-f',
-            self.get_tags_file(),
+            tags_file,
             '-a',
-            "%s" % self.relative_filename
+            "%s" % filename
         ])
 
-    def get_tags_file(self):
-        path = pathlib.Path(self.filename)
+    def get_tags_file(self, filename):
+        path = pathlib.Path(filename)
 
         self.log('Test: ' + str(path.with_name(self.tags_filename)))
         if path.with_name(self.tags_filename).is_file():
@@ -64,4 +68,4 @@ class NeotagsPlugin(object):
         raise ValueError('No tags file found in parent folders of given file')
 
     def log(self, message):
-        self.nvim.out_write(message + "\n")
+        self.nvim.out_write('neotags > ' + message + "\n")

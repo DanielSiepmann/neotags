@@ -7,12 +7,10 @@ Makes use of neovims async plugin API, so non blocking.
 
 Will not use some checks but lookup the whole path to find tags file.
 
-Install
-=======
+Requirements
+============
 
-Install python requirements in python3::
-
-    pip3 install -r requirements.txt
+- Python3
 
 TODO
 ====
