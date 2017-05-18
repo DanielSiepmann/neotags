@@ -12,6 +12,15 @@ Requirements
 
 - Python3
 
+- Neovim
+
+Installation
+============
+
+See https://github.com/neovim/python-client/#installation and:
+
+    You need to run :UpdateRemotePlugins in nvim for changes in the specifications to have effect. For details see :help remote-plugin in nvim.
+
 Options
 =======
 
