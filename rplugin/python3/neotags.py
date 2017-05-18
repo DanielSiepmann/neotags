@@ -26,12 +26,6 @@ class NeotagsPlugin(object):
             except neovim.api.nvim.NvimError:
                 self.options[option] = default
 
-        variable = 'neotags_%s' % option
-        try:
-            self.options[option] = bool(self.nvim.vars[variable])
-        except neovim.api.nvim.NvimError:
-            self.options[option] = False
-
     # Check whether 'FileWritePost' is necessary
     @neovim.autocmd('BufWritePost', pattern='*', eval='expand("<afile>:p")')
     def update_tags_for_file(self, filename):
