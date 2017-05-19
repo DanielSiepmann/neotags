@@ -1,12 +1,30 @@
+stages:
+  - build
+  - test
+
+build:image:
+  image: docker:git
+  stage: build
+  services:
+  - docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker build -t registry.gitlab.com/danielsiepmann/neotags .
+    - docker push registry.gitlab.com/neotags/neotags:latest
+  only:
+    - master
+
 lint:coding-guideline:
-  image: python:3-alpine
+  image: 'registry.gitlab.com/danielsiepmann/neotags:latest'
+  stage: test
   before_script:
     - pip install pep8
   script:
     - pep8 .
 
 test:
-  image: python:3-alpine
+  image: 'registry.gitlab.com/danielsiepmann/neotags:latest'
+  stage: test
   before_script:
     - apk add --no-cache gcc
     - pip install neovim
