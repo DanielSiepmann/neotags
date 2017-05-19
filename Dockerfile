@@ -10,3 +10,6 @@ RUN apk add python3 py-pip
 
 # Clean APK cache
 RUN rm -rf /var/cache/apk/*
+
+# Install dependencies
+RUN pip install pep8 neovim
