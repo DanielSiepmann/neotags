@@ -38,3 +38,14 @@ The following options are available:
 
 - ``let g:neotags_logging = 0``
    Defines whether to log anything to vims messages.
+
+Development
+===========
+
+Install dependencies:
+
+- ``pip install pyfakefs``
+
+Run tests:
+
+``cd rplugin && python -m unittest test.test_neotags``

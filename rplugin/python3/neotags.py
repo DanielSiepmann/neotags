@@ -12,6 +12,8 @@ class NeotagsPlugin(object):
     def __init__(self, nvim):
         self.nvim = nvim
         # Perhaps debugging settings?
+        # Like autotags, configure regex compared to filename to ignore, e.g.
+        # fugitive buffers, git commits, etc.
         self.options = {
             'tags_filename': 'tags',
             'ctags_cmd': 'ctags',
