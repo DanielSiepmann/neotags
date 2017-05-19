@@ -8,6 +8,7 @@ lint:coding-guideline:
 test:
   image: python:3-alpine
   before_script:
+    - apk add --no-cache gcc
     - pip install neovim
     - cd rplugin
   script:
