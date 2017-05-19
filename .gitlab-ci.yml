@@ -10,7 +10,7 @@ build:image:
   script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
     - docker build -t registry.gitlab.com/danielsiepmann/neotags .
-    - docker push registry.gitlab.com/neotags/neotags:latest
+    - docker push registry.gitlab.com/danielsiepmann/neotags:latest
   # only:
   #   - master
 
