@@ -111,6 +111,10 @@ class TestNeotagsPlugin(fake_filesystem_unittest.TestCase):
         )
 
         self.copyRealFile(
+            expected_tags_file,
+            expected_tags_file
+        )
+        self.copyRealFile(
             os.path.join(self.templates_dirname, 'example.py'),
             os.path.join(os.path.dirname(filename), os.path.basename(filename))
         )

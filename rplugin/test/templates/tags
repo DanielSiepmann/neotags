@@ -1,0 +1,9 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/4f741b9/
+SomeClass	example.py	/^class SomeClass(object):$/;"	kind:class	line:1	language:Python	inherits:object	access:public	end:7
+__init__	example.py	/^    def __init__(self):$/;"	kind:member	line:3	language:Python	scope:class:SomeClass	access:public	signature:(self)	end:5
+method	example.py	/^    def method(self):$/;"	kind:member	line:6	language:Python	scope:class:SomeClass	access:public	signature:(self)	end:7
