@@ -67,7 +67,7 @@ class NeotagsPlugin(object):
                     sys.stdout.write(line)
 
     def generate_tags(self, tags_file, filename):
-        subprocess.run([
+        subprocess.call([
             self.options['ctags_cmd'],
             '-f',
             tags_file,
