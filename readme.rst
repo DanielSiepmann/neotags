@@ -44,7 +44,7 @@ Development
 
 Install dependencies:
 
-- ``pip install pyfakefs``
+- ``pip install pyfakefs==3.1``
 
 Run tests:
 
