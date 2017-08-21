@@ -22,7 +22,7 @@ class TestNeotagsPlugin(fake_filesystem_unittest.TestCase):
         self.assertEqual('tags', self.plugin.options['tags_filename'])
         self.assertEqual(False, self.plugin.options['logging'])
 
-    def test_default_options(self):
+    def test_custom_options(self):
         self.plugin.nvim.configure_mock(vars={})
         self.plugin.nvim.vars['neotags_tags_filename'] = 'new_tags'
         self.plugin.nvim.vars['neotags_ctags_cmd'] = 'new_ctags'
