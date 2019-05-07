@@ -1,4 +1,4 @@
-import neovim
+import pynvim
 import fileinput
 import pathlib
 import subprocess
@@ -6,7 +6,7 @@ import sys
 import traceback
 
 
-@neovim.plugin
+@pynvim.plugin
 class NeotagsPlugin(object):
 
     def __init__(self, nvim):
@@ -25,11 +25,11 @@ class NeotagsPlugin(object):
             try:
                 variable = 'neotags_%s' % option
                 self.options[option] = self.nvim.vars[variable]
-            except neovim.api.nvim.NvimError:
+            except pynvim.api.nvim.NvimError:
                 self.options[option] = default
 
     # Check whether 'FileWritePost' is necessary
-    @neovim.autocmd('BufWritePost', pattern='*', eval='expand("<afile>:p")')
+    @pynvim.autocmd('BufWritePost', pattern='*', eval='expand("<afile>:p")')
     def update_tags_for_file(self, filename):
         self.update_settings()
 

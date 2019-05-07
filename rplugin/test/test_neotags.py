@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 from pyfakefs import fake_filesystem_unittest
-import neovim
+import pynvim
 import os
 
 from python3.neotags import NeotagsPlugin
@@ -15,7 +15,7 @@ class TestNeotagsPlugin(fake_filesystem_unittest.TestCase):
             'templates'
         )
         self.setUpPyfakefs()
-        self.plugin = NeotagsPlugin(Mock(neovim.api.nvim))
+        self.plugin = NeotagsPlugin(Mock(pynvim.api.nvim))
 
     def test_default_options(self):
         self.assertEqual('ctags', self.plugin.options['ctags_cmd'])
