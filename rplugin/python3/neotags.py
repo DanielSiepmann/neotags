@@ -24,7 +24,7 @@ class NeotagsPlugin(object):
         for option, default in self.options.items():
             try:
                 variable = 'neotags_%s' % option
-                self.options[option] = self.nvim.vars[variable]
+                self.options[option] = self.nvim.eval('g:%s' % variable)
             except pynvim.api.nvim.NvimError:
                 self.options[option] = default
 
