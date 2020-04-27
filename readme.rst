@@ -48,4 +48,4 @@ Install dependencies:
 
 Run tests:
 
-``cd rplugin && python -m unittest test.test_neotags``
+``docker run -it --rm -v $PWD/rplugin:/project -w /project registry.gitlab.com/danielsiepmann/neotags:latest python -m unittest test.test_neotags``

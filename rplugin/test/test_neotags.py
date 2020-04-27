@@ -1,3 +1,4 @@
+import unittest
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 from pyfakefs import fake_filesystem_unittest
@@ -5,7 +6,6 @@ import pynvim
 import os
 
 from python3.neotags import NeotagsPlugin
-
 
 class TestNeotagsPlugin(fake_filesystem_unittest.TestCase):
 
@@ -18,20 +18,40 @@ class TestNeotagsPlugin(fake_filesystem_unittest.TestCase):
         self.plugin = NeotagsPlugin(Mock(pynvim.api.nvim))
 
     def test_default_options(self):
-        self.assertEqual('ctags', self.plugin.options['ctags_cmd'])
         self.assertEqual('tags', self.plugin.options['tags_filename'])
+        self.assertEqual('ctags', self.plugin.options['ctags_cmd'])
         self.assertEqual(False, self.plugin.options['logging'])
 
     def test_custom_options(self):
-        self.plugin.nvim.configure_mock(vars={})
-        self.plugin.nvim.vars['neotags_tags_filename'] = 'new_tags'
-        self.plugin.nvim.vars['neotags_ctags_cmd'] = 'new_ctags'
-        self.plugin.nvim.vars['neotags_logging'] = True
+        def eval(argument):
+            if argument == 'g:neotags_tags_filename':
+                return 'new_tags'
+            if argument == 'g:neotags_ctags_cmd':
+                return 'new_ctags'
+            if argument == 'g:neotags_logging':
+                return True
 
+        self.plugin.nvim.configure_mock(eval=eval)
         self.plugin.update_settings()
 
         self.assertEqual('new_tags', self.plugin.options['tags_filename'])
         self.assertEqual('new_ctags', self.plugin.options['ctags_cmd'])
+        self.assertEqual(True, self.plugin.options['logging'])
+
+    def test_fallback_option(self):
+        def eval(argument):
+            if argument == 'g:neotags_tags_filename':
+                return 'new_tags'
+            if argument == 'g:neotags_ctags_cmd':
+                raise pynvim.api.nvim.NvimError('')
+            if argument == 'g:neotags_logging':
+                return True
+
+        self.plugin.nvim.configure_mock(eval=eval)
+        self.plugin.update_settings()
+
+        self.assertEqual('new_tags', self.plugin.options['tags_filename'])
+        self.assertEqual('ctags', self.plugin.options['ctags_cmd'])
         self.assertEqual(True, self.plugin.options['logging'])
 
     def test_debug_logs_to_nvim_when_logging_is_active(self):
@@ -128,3 +148,6 @@ class TestNeotagsPlugin(fake_filesystem_unittest.TestCase):
         self.plugin.strip_existing_tags(tags_file, os.path.basename(filename))
         with open(tags_file) as f, open(expected_tags_file) as e:
             self.assertEqual(e.read(), f.read())
+
+if __name__ == '__main__':
+    unittest.main()
