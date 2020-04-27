@@ -24,7 +24,7 @@ class NeotagsPlugin(object):
         for option, default in self.options.items():
             try:
                 variable = 'neotags_%s' % option
-                self.options[option] = self.nvim.vars[variable]
+                self.options[option] = self.nvim.eval('g:%s' % variable)
             except pynvim.api.nvim.NvimError:
                 self.options[option] = default
 
@@ -36,11 +36,11 @@ class NeotagsPlugin(object):
         self.debug('Triggered for "%s"' % filename)
 
         pwd = self.nvim.funcs.execute('pwd').strip()
-        relative_filename = filename.replace(pwd, '').lstrip('\/')
+        relative_filename = filename.replace(pwd, '').lstrip(r'\/')
 
         try:
             tags_file = self.get_tags_file(filename)
-        except:
+        except BaseException:
             self.error(
                 'Could not determine tags file to update for "%s"' % (
                     filename
@@ -53,7 +53,7 @@ class NeotagsPlugin(object):
             self.strip_existing_tags(tags_file, relative_filename)
             self.generate_tags(tags_file, relative_filename)
             self.debug('Tags updated for "%s"' % filename)
-        except:
+        except BaseException:
             self.error(
                 'Failed to update tags for "%s", reason: %s' % (
                     filename, traceback.format_exc()
