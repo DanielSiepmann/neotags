@@ -19,7 +19,7 @@ lint:coding-guideline:
   image: 'registry.gitlab.com/danielsiepmann/neotags:latest'
   stage: test
   script:
-    - pep8 .
+    - pycodestyle --show-source --show-pep8 .
 
 test:
   image: 'registry.gitlab.com/danielsiepmann/neotags:latest'

@@ -7,6 +7,7 @@ import os
 
 from python3.neotags import NeotagsPlugin
 
+
 class TestNeotagsPlugin(fake_filesystem_unittest.TestCase):
 
     def setUp(self):
@@ -148,6 +149,7 @@ class TestNeotagsPlugin(fake_filesystem_unittest.TestCase):
         self.plugin.strip_existing_tags(tags_file, os.path.basename(filename))
         with open(tags_file) as f, open(expected_tags_file) as e:
             self.assertEqual(e.read(), f.read())
+
 
 if __name__ == '__main__':
     unittest.main()
